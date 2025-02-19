@@ -194,7 +194,7 @@ userRoutes.post('/create-contact' , verificarUsuario, async (req , res) => {
 
           // Verificamos los datos del usuario  logueado en el caso que exista
           if(req.usuario && req.usuario.nombre){
-            contactosData.propietario = req.usuario.nombre // Asociamos el contacto en base a la persona logueada
+            contactosData.propietario = req.usuario.nombre // Asociamos el contacto en base a la persona que lo creo
 
             // Si el usuario no está logueado el contacto sera propietario de Admin 
           }else{
