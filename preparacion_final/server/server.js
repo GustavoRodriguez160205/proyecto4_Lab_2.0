@@ -114,7 +114,7 @@ authRoutes.post('/login-users' , async (req , res) => {
         return res.status(401).json({usuario , message : 'Contraseña Incorrecta'})
     }
 
-    // Generamos el token
+    // Generamos el token (Transformamos los datos del input a alfanúmerica unica por cada usuario)
      const token = jwt.sign(
      {id: usuario._id  , 
       id: String(usuario._id),
