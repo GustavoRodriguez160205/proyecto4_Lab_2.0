@@ -1,5 +1,4 @@
-// Link : Nos permite redirigir a otro componente
-// UseNavigate : Nos permite la navegación entre las paginas
+
 import { Link , useNavigate } from 'react-router-dom'
 import useAuth from '../auth/auth';
 
@@ -8,10 +7,11 @@ const NavBar = () => {
     const {isauth, nombre, logout} = useAuth()
     const navigate = useNavigate();
 
+    // Cierra sesión de la pagina
     const handleLogout = async () => {
         await logout();
-        window.location.reload();
-        navigate('/');
+        window.location.reload(); // Recarga la pagina
+        navigate('/'); // Mandamos al home una vez cerrada sesión
     }
     
     return (

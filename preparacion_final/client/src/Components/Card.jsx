@@ -32,6 +32,7 @@ const Card = ({
   const { isAdmin } = useAuth()
   const API_URL =  'http://localhost:5500/users/'
 
+  // Eliminamos datos directamente de la tarjeta
   const handleDelete = async () => {
     try {
         await axios.delete(
@@ -47,6 +48,7 @@ const Card = ({
         setIsEditing(true)
   }
 
+  // Guardamos la edición desde la tarjeta
   const saveEdition = async () => {
     try {
         await axios.patch(`${API_URL}edit-users/${id}`, {
@@ -57,7 +59,8 @@ const Card = ({
             correo: newCorreo,
             propietario: newPropietario
         })
-        
+
+        // Aca es donde cambiamos todos los campos para que se actualice
         onEdit(
             id,
             newNombre,
@@ -67,12 +70,13 @@ const Card = ({
             newCorreo,
             newPropietario
         )
+        // Vuelve al estado normal de la tarjeta (sin edición)
         setIsEditing(false)
     } catch (error) {
         console.log(error)
     }
   }
-
+   // Cancelar la edición
   const cancelEdition = async () => {
     setIsEditing(false)
     setNewNombre(nombre)

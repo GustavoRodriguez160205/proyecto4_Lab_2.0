@@ -61,11 +61,12 @@ userRoutes.post('/create-users', async (req , res) => {
 // Definimos la ruta para editar los usuarios
 userRoutes.patch('/edit-users/:id' , async (req , res) => {
     try {
-        // Parametros del id de la ruta
+        // Captura el id de la tarjeta, busca en la bd y lo edita
         const {id} = req.params
-        const usuariosData = req.body
-        // Encontramos el usuario por id y lo modificamos 
+        // En base al usuario a modificar busca los datos
+        const usuariosData = req.body 
         console.log(req.body)
+        // Utilizamos los datos del id que buscamos para modificarlos
         const resp = await user.findByIdAndUpdate(id , usuariosData , {new : true})
 
         if(!resp){
@@ -101,13 +102,14 @@ userRoutes.delete('/delete-users/:id' , async (req, res) => {
 // Ruta para logueo
 authRoutes.post('/login-users' , async (req , res) => {
    try {
-    // Traemos correo y contraseña del formulario
+    // Traemos correo y contraseña del front 
     const {correo , password} = req.body
-    const usuario = await user.findOne({correo})
+    const usuario = await user.findOne({correo}) // Busca si existe el correo
+    // Si no se encuentra
     if(!usuario){
-        return res.status(401).json({usuario , message : 'Email o contraseña incorrectos'})
+        return res.status(401).json({usuario , message : 'Email incorrecto'})
     }
-    // Comparamos la contraseña q envie con el formulario con el usuario que yo traje a traves del correo
+    
     if(password !== usuario.password){
         return res.status(401).json({usuario , message : 'Contraseña Incorrecta'})
     }
@@ -125,9 +127,7 @@ authRoutes.post('/login-users' , async (req , res) => {
       admin: Boolean(usuario.admin)},
         'hola123' , {expiresIn : '1h'}) 
     
-        // Creamos una coquie con sierto nombre donde se guarda el token
-        // Verificamos que es tipo de solicitud http 
-                                 // Duración maxima de validez que va a tener un token
+        // Fijamos la duración del token 
      res.cookie('llave', token , {httpOnly : true , maxAge : 36000000, sameSite: "lax" , secure: false} )
 
     return res.status(200).json({message: 'Has iniciado sesión correctamente' , token})
@@ -139,28 +139,32 @@ authRoutes.post('/login-users' , async (req , res) => {
 
 
 // Middleware para obtener el token de la coockie
+
 const  verificarUsuario = (req , res , next) => {
-      const token = req.cookies.llave
+      const token = req.cookies.llave // Guardamos el token
+
       if(!token){
          return res.status(404).json({message: 'No se encontro el token', token})
       }
       
       try {
-        // Decodificamos el token
+        // Verificamos el token y decodificamos
         const decode = jwt.verify(token , 'hola123')
-        // Guardamos la información del token decodificado
+        // Asociamos el token decodificado al usuario
         req.usuario = decode 
-        next()
+        next() // Ejecuta la siguiente función
+
       } catch (error) {
         return res.status(403).json({message: 'Token Invalido', token})
         
       }
 }
 
-// Ruta para verificar el token que creamos usando el middleware para verificarUsuario
-// Una vez verificado el usuario procedemos a obtener información de la solicitud
+
+
+// Sirve para traer los datos del usuario logueado para y visualizarlos en los inputs
 authRoutes.get('/verify' , verificarUsuario , async (req , res) => {
-    // Traemos los datos del usuario decodificado
+      // Verificamos los datos para poder hacer peticiónes al server. 
       const {id , nombre , empresa , telefono , correo , password , domicilio , admin} = req.usuario
       return res.status(200).json({message: 'Se obtuvieron los datos',id , nombre , empresa , telefono , correo , password , domicilio , admin})
 })
@@ -173,10 +177,10 @@ authRoutes.get('/logout' , verificarUsuario ,  async (req , res) => {
 
 
 // Empezamos con el CRUD sobre los contactos
-// Creamos la ruta de Create
 
 userRoutes.post('/create-contact' , verificarUsuario, async (req , res) => {
        try {
+          // Traemos los datos del front
           const contactosData = req.body 
           const {correo} = req.body
           // Busco el contacto por correo y verifico de que el correo sea existente
@@ -190,8 +194,7 @@ userRoutes.post('/create-contact' , verificarUsuario, async (req , res) => {
 
           // Verificamos los datos del usuario  logueado en el caso que exista
           if(req.usuario && req.usuario.nombre){
-            // Usamos el nombre del usuario logueado y le asisgnamos a propietario de contacto
-            contactosData.propietario = req.usuario.nombre
+            contactosData.propietario = req.usuario.nombre // Asociamos el contacto en base a la persona logueada
 
             // Si el usuario no está logueado el contacto sera propietario de Admin 
           }else{
@@ -211,14 +214,15 @@ userRoutes.post('/create-contact' , verificarUsuario, async (req , res) => {
 })
 
 
-// Ruta para traer los archivos
+// Ruta para traer los contactos
 
 userRoutes.get('/get-contacts' , async(req , res) => {
      try {
-        // Traemos todos los recursos de la bd pero que tengan el password vacio
-        const respuesta = await user.find({password: '' , is_visible: true}).sort({ nombre: 1 }); // Traemos los contactos que sean visibiles
+        // Traemos los contactos (sin contraseña) y que sean visibles, ordenados de forma alfabetica mediante nombre
+        const respuesta = await user.find({password: '' , is_visible: true}).sort({ nombre: 1 }); 
         console.log(respuesta);
-        
+
+        // Si no hay contactos , no mostramos nada
         if (respuesta.length === 0) {
             return res.status(404).json({message: 'No hay contactos para mostrar'})
         }
@@ -226,6 +230,7 @@ userRoutes.get('/get-contacts' , async(req , res) => {
         return res.status(200).json({message: 'Contactos obtenidos con exito', respuesta})
      } catch (error) {
 
+        // Por si hay error del server
         return res.status(500).json(error.message)
      }
 })
@@ -233,19 +238,19 @@ userRoutes.get('/get-contacts' , async(req , res) => {
 
 userRoutes.get('/get-contacts-by-role', verificarUsuario, async (req, res) => {
     try {
-      // Verificamos si el usuario es admin o propietario
-      const isAdmin = req.usuario.admin;  // Suponiendo que tienes un campo `isAdmin` en el objeto de usuario
+      // Treamos el valor del usuario logueado
+      const isAdmin = req.usuario.admin; 
         console.log(isAdmin)
       let contactos;
+      // Mostramos todos los contactos (sin contrasñea)
       if (isAdmin) {
-        // Si es admin, trae todos los contactos (o los que quieras)
-        contactos = await user.find({ password: '' }); // O la condición que necesites para el admin
+        contactos = await user.find({ password: '' }); 
       } else {
         // Si no es admin, trae los contactos relacionados con el propietario (usuario específico)
-        const nombresUserLog = req.usuario.nombre;
+        const nombresUserLog = req.usuario.nombre; // Accedemos al objeto de atributo (nombre)
         contactos = await user.find({ propietario: nombresUserLog });
       }
-  
+      // Si no hay contactos
       if (contactos.length === 0) {
         return res.status(404).json({ message: 'No hay contactos creados', contactos });
       }

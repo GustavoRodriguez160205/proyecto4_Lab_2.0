@@ -2,24 +2,26 @@ import axios from "axios";
 import { useNavigate } from 'react-router-dom'
 import useAuth from "../auth/auth"
 
-
+// Función para editar mi usuario
 const UserLog = () => {
     const { userId, nombre, empresa, correo, password, domicilio, telefono, setCorreo, setNombre, setEmpresa, setPassword, setDomicilio, setTelefono } = useAuth()
-    const navigate = useNavigate()
+    const navigate = useNavigate() // Navegación de la pagina
 
     const sendForm = async (evento) => {
-        evento.preventDefault()
+        evento.preventDefault() // Evitar que se recargue la pagina
 
         try {
+            // Enviar la petición al servidor que yo quiero modificar
             await axios.patch(`http://localhost:5500/users/edit-users/${userId}`, { nombre, empresa, correo, password, domicilio, telefono })
             alert('Usuario Actualizado')
-            navigate('/')
+            navigate('/') // Redirigue la home
         } catch (error) {
             console.log(error);
 
         }
     }
 
+    // Manejamos los valores de los inputs
     const handlechange = (evento, campo) => {
         const valor = evento.target.value
 

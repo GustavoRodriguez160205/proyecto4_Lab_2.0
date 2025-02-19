@@ -3,6 +3,7 @@ import { useState, useEffect } from "react"
 import Card from "../Components/Card"
 import useAuth from "../auth/auth"
 
+// Definimos los estados
 const Contact = () => {
   const [nombre, setNombre] = useState()
   const [empresa, setEmpresa] = useState()
@@ -13,11 +14,13 @@ const Contact = () => {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(true)
   const { isAdmin } = useAuth()
+
+  // 
   const API_URL = 'http://localhost:5500/users/'
 
-
+// Enviar el formulario
   const sendForm = async (evento) => {
-    evento.preventDefault()
+    evento.preventDefault() // Evitamos que se recargue la pagina
     try {
       const resp = await axios.post(
         `${API_URL}create-contact`,
@@ -63,6 +66,7 @@ const Contact = () => {
       await axios.patch(`${API_URL}edit-users/${id}`, {
         is_public: newPrivacity,
       })
+      // Recorremos la lista de contactos y modificamos la privacidad al contacto encontrado (mediante id)
       setContacts(
         contacts.map((contact) =>
           contact._id === id
@@ -70,7 +74,7 @@ const Contact = () => {
                 ...contact,
                 is_public: newPrivacity,
               }
-            : contact
+            : contact 
         )
       )
     } catch (error) {
@@ -78,6 +82,7 @@ const Contact = () => {
     }
   }
 
+  // La misma lógica , pero editamos muchos valores
   const editContact = (
     id,
     newNombre,
@@ -104,24 +109,29 @@ const Contact = () => {
     );
   };
   
+  // Filtra y elimina contactos en base a su id
   const deleteContact = (id) => {
     setContacts(contacts.filter((contact) => contact._id !== id))
   }
 
   useEffect(() => {
     const getContacts = async () => {
-      if (isAdmin === undefined) {
-        setLoading(true);
-        return; // No hacemos la solicitud si isAdmin no está definido
+      // Traemos los contactos en base a determinado usuario (si es o no admin)
+      if (isAdmin === undefined) {  
+        setLoading(true); // Manejamos la carga de la pagina
+        return; 
       }
     
       try {
+        // Traemos los contactos dependiendo si sos admin o no
         const resp = await axios.get( `${API_URL}get-contacts-by-role`, { withCredentials: true });
-        setContacts(resp.data);
-      } catch (error) {
+        setContacts(resp.data); // Almacnamos los datos traidos y almacenamos en contactos
+      } catch (error){
+        // Sino encuentra error , da recurso no encontrado
         if (error.response && error.response.status === 404) {
           setError("Recurso no encontrado");
         } else {
+          // Para cualquier tipo de error
           setError("Error al traer contactos");
         }
       }
@@ -131,7 +141,7 @@ const Contact = () => {
     // Ejecutamos getContacts solo si isAdmin está definido
     if (isAdmin !== undefined) {
       getContacts();
-    }
+    } 
   }, [isAdmin]); // Dependemos solo de isAdmin
   
   
@@ -146,7 +156,7 @@ const Contact = () => {
             type="text"
             className="w-100"
             placeholder="Correo electrónico"
-            onChange={(evento) => setCorreo(evento.target.value)}
+            onChange={(evento) => setCorreo(evento.target.value)} // Cambiamos en tiempo real el valor del correo
             value={correo}
           />
         </div>
@@ -194,6 +204,7 @@ const Contact = () => {
       <h3>MIS CONTACTOS</h3>
       <hr />
       <div>
+        {/*Mostramos error si es que no se hallan encontrado los contactos o cualquier tipo de error*/}
         {error ? (
           <p>{error}</p>
         ) : (
