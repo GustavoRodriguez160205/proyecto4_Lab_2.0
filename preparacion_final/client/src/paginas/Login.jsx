@@ -4,8 +4,8 @@ import { useNavigate, Link } from "react-router-dom" // Importamos useNavigate p
 
 const Login = () => {
     // Definimos los estados para almacenar los valores del correo y la contraseña que el usuario ingresa.
-    const [password, setPassword] = useState() // Estado para almacenar la contraseña.
-    const [correo, setCorreo] = useState() // Estado para almacenar el correo electrónico.
+    const [password, setPassword] = useState() 
+    const [correo, setCorreo] = useState() 
     
     const navigate = useNavigate() // Hook para navegar entre las rutas después del login exitoso.
 
@@ -14,7 +14,7 @@ const Login = () => {
 
     // Función que se ejecuta cuando el formulario se envía.
     const sendForm = async (evento) => {
-        evento.preventDefault() // Evitamos el comportamiento por defecto del formulario (recargar la página).
+        evento.preventDefault() 
         
         try {
             // Realizamos una solicitud POST a la ruta de login en el servidor con los datos del formulario.

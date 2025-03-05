@@ -4,8 +4,7 @@ import { useNavigate, Link } from "react-router-dom"
 
 const Registro = () => {
 
-    // Definimos la logica del componente
-    // El setEmail es para el input específico del correo electronico
+    // Definimos las variables de estado
     const [ nombre , setNombre] = useState()
     const [ empresa , setEmpresa] = useState()
     const [ domicilio , setDomicilio ] = useState()
@@ -14,9 +13,11 @@ const Registro = () => {
     const [ correo , setCorreo] = useState()
     const navigate = useNavigate()
 
+    // Función para enviar el boton
     const sendForm = async(evento) => {
           evento.preventDefault()
           try {
+            // Realizamos la petición al serve
             await axios.post('http://localhost:5500/users/create-users' , {nombre , empresa , domicilio , telefono , password , correo})
             alert('Su registro a sido exitoso')
             navigate("/login")

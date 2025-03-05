@@ -1,13 +1,15 @@
-const mongose = require('mongoose')
+const mongoose = require('mongoose');
 
-
-const conext = async () => {
+const connectDB = async () => {
     try {
-        await mongose.connect('mongodb+srv://gustavoFinal:IJz3uMOzo4SKjWWe@bdclase02.ei3pbqg.mongodb.net/?retryWrites=true&w=majority&appName=bdClase02')
-        console.log('Nos pudimos conectar a la base de datos');
+        await mongoose.connect('mongodb+srv://gustavoFinal:IJz3uMOzo4SKjWWe@bdclase02.ei3pbqg.mongodb.net/?retryWrites=true&w=majority&appName=bdClase02', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+        console.log('✅ Conexión exitosa a la base de datos');
     } catch (error) {
-        console.log(error.message)
+        console.error('❌ Error al conectar:', error.message);
     }
-}
+};
 
-conext() // Llamamos a la función
+connectDB(); // Llamamos a la función
